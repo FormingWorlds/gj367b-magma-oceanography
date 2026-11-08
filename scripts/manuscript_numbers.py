@@ -92,19 +92,28 @@ def temperatures():
         print(f"  shoreline at {t:.0f} K: {shoreline_deg(t):.1f} deg")
 
 
+def shoreline_series(surface_map):
+    """Return the melt-fraction 0.5 edge (deg) on the dayside for every map row."""
+    lon = np.abs(surface_map["lon_deg"])
+    edges = []
+    for row in surface_map["meltfrac"]:
+        molten = lon[(row > 0.5) & (lon < 90.0)]
+        edges.append(molten.max() if molten.size else 0.0)
+    return np.asarray(edges)
+
+
 def shorelines():
-    """Print the measured melt-fraction 0.5 edge of the segregation runs."""
+    """Print the melt-fraction 0.5 edge of the segregation runs, late and at equal time."""
     for run in GROUPS["L"]:
         m = load_map(run)
-        late = m["time_gyr"] >= 0.75 * m["time_gyr"].max()
-        edges = []
-        for row in m["meltfrac"][late]:
-            molten = np.abs(m["lon_deg"])[(row > 0.5) & (np.abs(m["lon_deg"]) < 90.0)]
-            edges.append(molten.max() if molten.size else 0.0)
-        edge = float(np.median(edges))
+        t = m["time_gyr"]
+        edges = shoreline_series(m)
+        edge = float(np.median(edges[t >= 0.75 * t.max()]))
+        same = float(np.median(edges[(t >= 0.6) & (t < 1.13)]))
         t_day = T_DAY["1745"] if "+" in MODEL_NAMES[run] else T_DAY["1597"]
         print(
-            f"  {MODEL_NAMES[run]}: edge {edge:.1f} deg, T_s {surface_temperature(edge, t_day):.0f} K"
+            f"  {MODEL_NAMES[run]}: last quarter {edge:.1f} deg "
+            f"(T_s {surface_temperature(edge, t_day):.0f} K), 0.6-1.13 Gyr {same:.1f} deg"
         )
 
 
