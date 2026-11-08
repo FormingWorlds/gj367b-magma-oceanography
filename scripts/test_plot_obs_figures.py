@@ -100,3 +100,19 @@ def test_noise_calibration_is_consistent_and_physical():
         cal["observed_ppm"] * planck_15um(480.0 * (2 / 3) ** 0.25) / planck_15um(380.0)
     )
     assert 0.0 < cal["model_depth_ppm"] < upper
+
+
+def test_calibrated_sigma_of_surfaces_is_about_0p08():
+    """The stored photometry gives a calibrated 1-sigma near 0.08 for every surface.
+
+    A pi too many in the planet flux of ``surface_photometry`` makes the raw
+    1/SNR pi times smaller and this sigma about 0.025.
+    """
+    phot = obs.read_photometry()
+    sig = [
+        row[f"{band}_sigma"]
+        for row in phot.values()
+        if row["kind"] == "surface"
+        for band in ("F1280W", "F1500W")
+    ]
+    assert 0.06 < min(sig) and max(sig) < 0.10
