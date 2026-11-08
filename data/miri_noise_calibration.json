@@ -1,0 +1,8 @@
+{
+ "noise_factor": 1.5596948185103312,
+ "reference": "TRAPPIST-1c granite bare rock, F1500W",
+ "observed_ppm": 421.0,
+ "observed_sigma_ppm": 94.0,
+ "model_depth_ppm": 398.98201946956544,
+ "model_sigma_ppm": 60.26820047384633
+}

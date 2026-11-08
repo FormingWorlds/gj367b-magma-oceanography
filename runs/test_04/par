@@ -1,0 +1,28 @@
+  
+  &default_parameters_parfile
+  par_name_defaultparameters='par_GJ367b'
+  /
+
+  &geometry	
+  D_dimensional=1436.e3   
+  r_cmb=3342.e3
+  nztot=64    ! <------------  more radial points
+  /
+
+  &refstate
+  g_dimensional=9.02
+  /
+
+  &boundaries
+  botT_mode='iso0flux'
+  topT_locked_subsolar=1597.   ! <---------------- Subsolar surface T here (1597-1745 K)
+  /
+
+  &t_init
+  blthick=50.e3		  ! in m
+  T0_init=1600.           ! initial potential temperature 
+  /
+
+  &melt
+  magma_tcond_mode='Tgradient'
+  /

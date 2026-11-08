@@ -1,0 +1,29 @@
+
+&default_parameters_parfile
+	par_name_defaultparameters='par_GJ367b'
+/
+
+&refstate
+  core_cooling=.false. !          <----------------- Core cooling?
+/
+
+&boundaries
+  botT_mode='iso0flux'
+  topT_locked_subsolar=1597.   ! <---------------- Subsolar surface T here (1597-1745 K)
+  /
+
+&t_init
+  blthick=50.e3 		! in km
+  T0_init=1600.           ! initial potential temperature 
+/
+
+&melt
+  magma_tcond_mode='Tgradient'
+  melt_segregation=.false.
+  melt_segregation_gs=1.e-3
+  eruption=.true.
+  erupt_mode='all'
+  erupt_any_composition=.true.
+  intrusion=.false.
+  intrude_position='surface'
+/

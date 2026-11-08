@@ -1,0 +1,443 @@
+  
+  ! par file for super-Mercury GJ367b
+  ! Edited from par.EarthDIMMELTS_Jan2022
+  ! 12th April 2022
+  
+  
+  &switches
+  verbose=.false.
+  try_continue=.true.
+  compressible=.true.
+  dens_strat=.true.
+  tracers=.true.
+  composition=.false.
+  phase_changes=.true.
+  melting=.true.
+  multig_solve=.true.
+  total_pressure=.true.
+  dimensional_units=.true.
+  random_repeatable=.false.  !<---------- .true. means should get same result every time
+  &end
+
+  &geometry	
+  shape='spherical'
+  anti_squeeze=.true.
+  D_dimensional=640.e3   r_cmb=3934.e3
+  D_dim_top=0.
+  nxtot=1
+  nytot=512   ! <------------ Set resolution here: azimuthal
+  nztot=32    ! <------------                      radial
+  aspect_ratio(1)=3.15
+  aspect_ratio(2)=6.4
+  zspacing_mode='function_exp'
+  dresl_topbot=1.0
+  dresl_surf=2.0
+  wresl_surf=0.07
+  dresl_cmb=2.0
+  wresl_cmb=0.05
+  &end	
+
+  &phase
+  nphase_systems=8
+  sys_ol       =1
+  sys_pxgt     =2
+  sys_melt_ol  =3
+  sys_melt_pxgt=4
+  sys_prim     =5
+  sys_ccrust   =6
+  sys_metal    =7
+  sys_air      =8
+  nphase(:)=3,4,0,0,4,0,0
+
+  Tp0(:,1)=2300, 1900., 1600.			! in K
+  Tp0(:,2)=2300, 1900., 1600., 1000.
+  Tp0(:,3)=0.
+  Tp0(:,4)=0.
+  Tp0(:,5)=2300, 1900., 1600., 1000.
+  Tp0(:,6)=0.
+  Tp0(:,7)=0.
+  phase_mode(:,1)='function', 'discont   ','discont   '  
+  phase_mode(:,2)='function', 'eff_alpha ','eff_alpha ','function'
+  phase_mode(:,3)='none'
+  phase_mode(:,4)='none'
+  phase_mode(:,5)='function', 'eff_alpha ','eff_alpha ','function'
+  phase_mode(:,6)='none'
+  phase_mode(:,7)='none'
+  dp0(:,1)=2740.e3, 660.e3, 410.e3			! in km
+  dp0(:,2)=2740.e3, 720.e3, 300.e3, 40.e3
+  dp0(:,5)=2740.e3, 720.e3, 400.e3, 40.e3
+  drho_p(:,1)=61.6, 435., 180.			! in kg/m3
+  drho_p(:,2)=61.6, 350., 100., 350.
+  drho_p(:,5)=61.6, 400., 150., 350.
+  clap(:,1)=10.e6, -2.5e6, 2.5e6			! in Pa/K
+  clap(:,2)=10.e6,  1.0e6, 1.0e6, 1.5e6
+  clap(:,5)=10.e6,  1.0e6, 1.0e6, 1.5e6
+  w_p(:,1)=25.e3, 25.e3, 25.e3			! in m
+  w_p(:,2)=25.e3, 75.e3, 75.e3, 25.e3
+  w_p(:,5)=25.e3, 75.e3, 75.e3, 25.e3
+
+  Ol_frac_ref      = 0.6
+  basalt_frac_ref  = 0.2
+
+  effective_cp_alpha=.true.
+  scale_PCdepths=.true.               ! scales depths with gravity
+  g0_dimensional_PCdepths=9.81        ! gravity for which below depths are valid
+
+  /
+
+  &refstate
+  perplex_properties=.false.
+
+  Birch_Murnaghan=.true.
+  ! in Parameters for 3rd-order BM eq of state (dimensional)
+  ! & exponent for kappa dependence on compression
+  K0(1,1)=210.e9	Kp(1,1)=3.9  gr_s(1,1)=1.3  ex_tkappa(1,1)=1.0 ! ppv
+  K0(1,2)=210.e9	Kp(1,2)=3.9  gr_s(1,2)=1.3  ex_tkappa(1,2)=1.0 ! 
+  K0(1,5)=210.e9	Kp(1,5)=3.9  gr_s(1,5)=1.3  ex_tkappa(1,5)=1.0 ! 
+  K0(1,6)=210.e9	Kp(1,6)=3.9  gr_s(1,6)=1.3  ex_tkappa(1,6)=1.0 ! 
+  K0(2,1)=210.e9	Kp(2,1)=3.9  gr_s(2,1)=1.3  ex_tkappa(2,1)=1.0 ! pv
+  K0(2,2)=210.e9	Kp(2,2)=3.9  gr_s(2,2)=1.3  ex_tkappa(2,2)=1.0 ! 
+  K0(2,5)=210.e9	Kp(2,5)=3.9  gr_s(2,5)=1.3  ex_tkappa(2,5)=1.0 ! 
+  K0(2,6)=210.e9	Kp(2,6)=3.9  gr_s(2,6)=1.3  ex_tkappa(2,6)=1.0 ! 
+  K0(3,1)= 85.e9	Kp(3,1)=4.0  gr_s(3,1)=0.85 ex_tkappa(3,1)=1.0 ! tz
+  K0(3,2)= 85.e9	Kp(3,2)=4.0  gr_s(3,2)=0.85 ex_tkappa(3,2)=1.0 ! 
+  K0(3,5)= 85.e9	Kp(3,5)=4.0  gr_s(3,5)=0.85 ex_tkappa(3,5)=1.0 ! 
+  K0(3,6)= 85.e9	Kp(3,6)=4.0  gr_s(3,6)=0.85 ex_tkappa(3,6)=1.0 ! 
+  K0(4,1)=163.e9	Kp(4,1)=4.0  gr_s(4,1)=1.3  ex_tkappa(4,1)=1.0 ! um
+  K0(4,2)=163.e9	Kp(4,2)=4.0  gr_s(4,2)=1.3  ex_tkappa(4,2)=1.0 ! 
+  K0(4,5)=163.e9	Kp(4,5)=4.0  gr_s(4,5)=1.3  ex_tkappa(4,5)=1.0 ! 
+  K0(4,6)=163.e9	Kp(4,6)=4.0  gr_s(4,6)=1.3  ex_tkappa(4,6)=1.0 ! 
+  K0(5,1)=163.e9	Kp(5,1)=4.0  gr_s(5,1)=1.3  ex_tkappa(5,1)=1.0 ! garnet(basalt)
+  K0(5,2)=163.e9	Kp(5,2)=4.0  gr_s(5,2)=1.3  ex_tkappa(5,2)=1.0 ! 
+  K0(5,5)=163.e9	Kp(5,5)=4.0  gr_s(5,5)=1.3  ex_tkappa(5,5)=1.0 ! 
+  K0(5,6)=163.e9	Kp(5,6)=4.0  gr_s(5,6)=1.3  ex_tkappa(5,6)=1.0 ! 
+
+  K0(1,3)=30.e9	Kp(1,3)=6.0  gr_s(1,3)=0.6  ex_tkappa(2,3)=1.0 ! melt-ol
+  K0(1,4)=30.e9	Kp(1,4)=6.0  gr_s(1,4)=0.6  ex_tkappa(2,4)=1.0 ! melt-pxgt
+
+  K0(1,7)=210.e9	Kp(1,7)=3.9  gr_s(1,7)=1.3  ex_tkappa(1,7)=1.0 ! metal ???
+
+  rhoref_surf=3240. 3080. 2900. 2900. 3080. 3080. 7000.    ! in kg/m3
+
+  q_gamma=1.            ! dependence of gruneisen parameter on compression
+  q_gamma(1,3)=-1.3     ! for melt
+  q_gamma(1,4)=-1.3     ! for melt
+
+
+  Rh=5.2e-12           ! in W/kg  <------------------ Radioactive heating here
+  Rh_halflife=1.e30    ! in years
+  ! Rh=18.77e-12         ! INITIAL. In W/kg  for EVOLUTION cases
+  ! Rh_halflife=2.43e9   ! in years
+
+  core_cooling=.false. !          <----------------- Core cooling?
+  core_model='simple'
+  core_heatcap=1.e13   !          <----------------- calculated for core radius 3934 km
+  !core_heatcap=8.77e12 !          <----------------- calculated for core radius 3342 km
+
+  Tref_surf=1600.      ! in K
+
+  drho_cmb=4337.       ! in kg/m3
+  drho_surf=3300.
+
+  phase_assemblage_varies_with_C=.true.
+  c_dependent_heating=.false.   ! whether internal heating rate depends on C
+  dHeat_dbasalt=1.
+  dHeat_dprim=10.
+
+  delT0_expan=6.        ! related to expansivity pressure-dependence
+  ak_expan=1.4          !  ditto
+
+  core_model='simple'
+  core_superheat=0.0	! leave this at 0, change botT_val instead
+  core_Kppm=0.0		! K ppm in core
+
+  tcond_dimensional=3.0
+  deltaT_dimensional=2500.0
+  g_dimensional=11.00
+  dens_dimensional=3300.   ! used in thermal conductivity, viscosity p calc
+  Cp_dimensional=1200.     ! specific heat capacity W/kg/K
+  expan_dimensional=5.e-5  ! expansivity in K^-1
+  /	
+
+
+  &boundaries
+  x_bc='ww'
+  y_bc='ww'
+
+  topT_mode='TidallyLockedradiative' ! <------------- Surface BC: Tidally locked & radiative
+  topT_locked_subsolar=1745.         ! <---------------- Subsolar surface T (1597-1745 K)
+  topT_locked_farside=100.           ! <---------------- Night-side surface T
+
+  atmosphere_heatloss_factor=1.0
+
+  botT_mode='iso0flux'   ! <-------------------- Zero-flux isothermal core-mantle boundary
+  !botT_mode='iso'        ! <------------------- Isothermal core-mantle boundary with T=botT_val
+  botT_val=2000.         ! <-------------------- Initial core temperature when botT_mode='iso'
+
+  topV_mode='free-slip'
+  botV_mode='free-slip'
+  /
+
+  &t_init
+  imode_t='bndry_layers'
+  amp_t=20.0	     ! in K
+  T0_init=3000. 
+  blthick=50.e-3 ! <-------- initial potential T & top bndry-layer thickness: hot start
+  /
+
+  &timein
+  finish_at_time=8.0e9    ! <------------- finishing time in years
+  dt_write=10.e6          ! <------------- writing interval in years
+  nsteps=5000000     
+  nwrite=50               ! <------------- writing interval in time steps
+  alpha_adv=0.6
+  alpha_diff=1.e10
+  advection_scheme='TVD'
+  iord=2
+  diffusion_implicit=.true.
+  diffusion_beta=1.0
+  diffusion_errmax=1.e-6
+  diffusion_alpha=0.7
+  diffusion_nrelax=3
+  /
+
+  &viscosity
+  ietalaw=1                   ! Arrhenius
+  PressureDepRheology=.true.  ! pressure- not depth-dependent
+  PressureDepVact=.true.      ! Vact decreases with pressure
+
+  diffusion_creep=.true.
+  dislocation_creep=.false.
+  plasticity=.false.         ! <--------------- turn on/off plastic yielding
+  phase_dep_Eeta=.true.
+
+  eta_UseRefstatePressure=.true.
+
+  T0_eta=1600.
+  d0_eta=0.0
+  stress0_eta=1.0e6       ! crossover stress diffusion-dislocation creep in Pa
+  Ts_eta=-1.              ! negative sets it to surface T
+
+  
+  eta0=1.e20   ! <---------------Reference viscosity at  (T0_eta,d0_eta,stress0_eta).
+
+  ! System 1: Olivine  dry olivine rheology - in J/mol and m3/mol
+  !     - Diffusion creep - from Karato and Wu
+  E_eta(1,4,1)=300.0e3 V_eta(1,4,1)=5.0e-6  Pdecay_V(1,4,1)=   1.0e30 ! Ol
+  E_eta(1,3,1)=300.0e3 V_eta(1,3,1)=5.0e-6  Pdecay_V(1,3,1)=   1.0e30 ! TZ
+  E_eta(1,2,1)=370.0e3 V_eta(1,2,1)=3.65e-6 Pdecay_V(1,2,1)= 200.0e9  ! PV
+  E_eta(1,1,1)=162.0e3 V_eta(1,1,1)=1.4e-6  Pdecay_V(1,1,1)=1610.0e9  ! PPV
+  !     - Dislocation creep - from Gerya/Ranalli in upper mantle, same as diffusion in LM
+  E_eta(2,4,1)=532.0e3 V_eta(2,4,1)=14.e-6      n_eta(4,1)=3.5  Pdecay_V(2,4,1)=   1.0e30 ! Ol
+  E_eta(2,3,1)=532.0e3 V_eta(2,3,1)=14.e-6      n_eta(3,1)=3.5  Pdecay_V(2,3,1)=   1.0e30 ! TZ
+  E_eta(2,2,1)=370.0e3 V_eta(2,2,1)=3.65e-6    n_eta(2,1)=3.5  Pdecay_V(2,2,1)= 200.0e9  ! PV
+  E_eta(2,1,1)=162.0e3 V_eta(2,1,1)=1.4e-6      n_eta(1,1)=3.5  Pdecay_V(2,1,1)=1610.0e9  ! PPV
+  !     - Crossover stress and multiplier to eta0.
+  !  Uses above-listed stress0_eta in upper mantle, 10* higher in lower mantle.
+  stress0_eta(4,1)=3.e5  deta_p(4,1)=1.0    ! Ol
+  stress0_eta(3,1)=3.e5  deta_p(3,1)=1.0    ! TZ
+  stress0_eta(2,1)=3.e6  deta_p(2,1)=3.0    ! PV - in J/mol and m3/mol
+  stress0_eta(1,1)=3.e6  deta_p(1,1)=0.1    ! pPv - not relevant for Venus
+
+
+  ! System 2: Pyroxene-garnet - use plagioclase an75 rheology for basalt, olivine for eclogite
+  !     - Diffusion creep - assume (E,V) same as for dislocation creep
+  !E_eta(1,5,2)=238.0e3 V_eta(1,5,2)=0.e-6        Pdecay_V(1,5,2)=   1.0e30     ! Bs = plagioclase
+  E_eta(1,5,2)=300.0e3 V_eta(1,5,2)=6.e-6        Pdecay_V(1,5,2)=   1.0e30     ! Bs = olivine
+  E_eta(1,4,2)=300.0e3 V_eta(1,4,2)=6.e-6        Pdecay_V(1,4,2)=   1.0e30     ! Px - as olivine
+  E_eta(1,3,2)=300.0e3 V_eta(1,3,2)=6.e-6        Pdecay_V(1,3,2)=   1.0e30     ! Gt - as olivine
+  E_eta(1,2,2)=370.0e3 V_eta(1,2,2)=3.65e-6     Pdecay_V(1,2,2)= 200.0e9  ! PV
+  E_eta(1,1,2)=162.0e3 V_eta(1,1,2)=1.4e-6       Pdecay_V(1,1,2)=1610.0e9  ! PPV
+  !     - Dislocation creep -  Gerya/Ranalli for basalt, as olivine for deeper phases
+  !E_eta(2,5,2)=238.0e3 V_eta(2,5,2)=0.e-6          n_eta(5,2)=3.2   Pdecay_V(2,5,2)=   1.0e30 ! Bs = plagioclase
+  E_eta(2,5,2)=532.0e3 V_eta(2,5,2)=14.e-6        n_eta(5,2)=3.5   Pdecay_V(2,5,2)=   1.0e30 ! Bs = olivine
+  E_eta(2,4,2)=532.0e3 V_eta(2,4,2)=14.e-6        n_eta(4,2)=3.5   Pdecay_V(2,4,2)=   1.0e30 ! Px - as olivine
+  E_eta(2,3,2)=532.0e3 V_eta(2,3,2)=14.e-6        n_eta(3,2)=3.5   Pdecay_V(2,3,2)=   1.0e3   ! Gt - as olivine
+  E_eta(2,2,2)=370.0e3 V_eta(2,2,2)=3.65e-6      n_eta(2,2)=3.5  Pdecay_V(2,2,2)= 200.0e9  ! PV
+  E_eta(2,1,2)=162.0e3 V_eta(2,1,2)=1.4e-6        n_eta(1,2)=3.5  Pdecay_V(2,1,2)=1610.0e9   ! PPV
+  !     - Crossover stress and multiplier to eta0
+  !  Uses above-listed stress0_eta in upper mantle, 10* higher in lower mantle.
+  !stress0_eta(5,2)=3.e5  deta_p(5,2)=0.0133  ! Bs = plagioclase
+  stress0_eta(5,2)=3.e5  deta_p(5,2)=1.0  ! Bs = olivine
+  stress0_eta(4,2)=3.e5  deta_p(4,2)=1.0  ! Px - as olivine
+  stress0_eta(3,2)=3.e5  deta_p(3,2)=1.0  ! Gt - as olivine
+  stress0_eta(2,2)=3.e6  deta_p(2,2)=3.0  ! PV - as olivine
+  stress0_eta(1,2)=3.e6  deta_p(1,2)=0.1  ! pPv
+
+
+  ! MOLTEN Olivine
+  E_eta(1,1,3)=1.0	 V_eta(1,1,3)=0.0e-6  Pdecay_V(1,1,3)=   1.0e30 ! single melt phase
+  E_eta(2,1,3)=1.0	 V_eta(2,1,3)=0.0e-6  Pdecay_V(2,1,3)=   1.0e30 ! single melt phase
+  stress0_eta(1,3)=3.e4  deta_p(1,3)=0.0001
+
+  ! MOLTEN pyroxene-garnet
+  E_eta(1,1,4)=1.0	 V_eta(1,1,4)=0.0e-6   Pdecay_V(1,1,4)=   1.0e30 ! single melt phase
+  E_eta(2,1,4)=1.0	 V_eta(2,1,4)=0.0e-6   Pdecay_V(2,1,4)=   1.0e30 ! single melt phase
+  stress0_eta(1,4)=3.e4  deta_p(1,4)=0.0001
+
+  ! primordial material, diffusion creep (same as px-gt)
+  E_eta(1,5,5)=300.0e3 V_eta(1,5,5)=5.0e-6   Pdecay_V(1,5,5)=   1.0e30 ! Bs
+  E_eta(1,4,5)=300.0e3 V_eta(1,4,5)=5.0e-6   Pdecay_V(1,4,5)=   1.0e30 ! Px
+  E_eta(1,3,5)=300.0e3 V_eta(1,3,5)=5.0e-6   Pdecay_V(1,3,5)=   1.0e30 ! Gt
+  E_eta(1,2,5)=370.0e3 V_eta(1,2,5)=3.65e-6  Pdecay_V(1,2,5)= 200.0e9  ! PV
+  E_eta(1,1,5)=162.0e3 V_eta(1,1,5)=1.4e-6   Pdecay_V(1,1,5)=1610.0e9  ! PPV
+
+
+  eta_max=1.e26       ! <--------------- maximum viscosity cutoff
+  eta_min=1.e17       ! <--------------- minimum viscosity cutoff
+  visc_interp_law='g'
+
+  deta_p_correct_jumps=.true.
+
+
+  rheological_transition_solid=.false.
+  rheological_threshold_weak_phase=0.3
+
+
+  deta_basalt=1
+  etalaw_basalt=1
+  stressY_eta=100.e6      ! <------------- 'ductile' yld stress @p=0
+  dstressY_eta_dp=0.001   ! gradient of the ductile yield stress
+  frictionCoeff_eta=0.5   ! <------------- Byerlee's law friction coefficient
+
+  alpha_eta=0.5           ! relaxation parameter for nonlinear viscosity iterations
+  maxits_eta=20
+  /
+
+  &iteration
+  maxits=20
+  normalize_res_by_eta=.true.
+  errmax=1.e-3
+  !relax_kernel='classic'
+  relax_kernel='direct'    ! <----------------- Direct solver: use in 2-D
+  alpha_mom=0.7
+  alpha_cont=0.9
+  redblack=.false.
+  /
+
+  &multi 
+  nrelax1=15
+  nrelax2=15
+  maxcoarseits=200
+  alpha_multi=1.0
+  nhmin=4
+  nzmin=4
+  nzpnmin=1
+  more_coarse_its=.true.
+  f_cycle=.true.
+  matrix_dep_pinterp=.true.
+  /
+
+  &ioin
+  output_format='both'   ! <------------- both hdf5 and 'old' format files
+  output_file_stem='Output/GJ367b'
+  t_write=.true.     ! temperature
+  c_write=.true.     ! composition
+  bs_write=.true.	   ! basalt fraction
+  hz_write=.true.	   ! harzburgite fraction
+  primordial_write=.true. ! primordial fraction
+  f_write=.true.     ! melt fraction
+  vp_write=.true.    ! velocity & pressure
+  eta_write=.true.   ! viscosity
+  edot_write=.true.  ! strain rate
+  age_write=.true.   ! age (since last melted)
+  edot_write=.true.  ! strain rate
+  topo_write=.true.  ! topography (CMB & surface)
+  crust_write=.true. ! crustal thickness
+  rheo_write=.true.
+  stress_write=.true.
+  vm_write=.true.
+  rho_write=.true.
+  hpe_write=.true.
+  tra_write=.true.   ! tracers
+  tcond_write=.true.
+  delete_old_trafiles=.true.
+  /
+
+  &compin
+  /
+
+  &melt
+  melt_phase_systems=.true.
+  harzburgite_melts=.true.
+  fractional_xtallisation_n_melting=.true.
+
+  melt_segregation=.false.
+  !melt_segregation=.true.
+  melt_segregation_mode='Abe'	melt_segregation_gs=1.e-3
+
+  magma_effective_tcond=.true.
+  magma_tcond_max=1.e10        ! <------------- max. value of magmatic effective thermal conductivity
+  !magma_tcond_mode='constant'  ! <------------- dependent on melt fraction only
+  magma_tcond_mode='Tgradient' ! <------------- also depends on temperature gradient
+  magma_topTBL_const=0.0    ! switch off 1cm thick thermal boundary layer at top
+
+  solidus_function='simple'
+  dTadjust_solidus_liquidus = 0.  ! <--------------- add any +/- of the solidus & liquidus here
+  latent_heat=600e3                     ! in J/kg
+  Cf_dependent_Tmelting=.true.
+  !c_dependent_solidus=.true.            ! increases solidus due to depletion
+  p_dependent_solidus=.false.     ! whether depends on pressure rather than depth
+  eruption=.false.  erupt_fraction=1.0
+  erupt_mode='lith' 
+  erupt_T_lith=1500.
+  intrusion=.false. intrude_fraction=1.0	intrude_position='base_crust'
+  d_erupt_Earth=300.e3              ! maximum eruption depth in meters 
+  d_intrude=300.e3
+  /
+
+
+  &continents
+  /
+
+  &tracersin
+  tracers_temperature=.true.
+  imode_tra='even+ran'
+  ntracers_per_cell=15
+  tracers_everywhere=.true.
+  d_crust=2890.e3                ! in meters
+  tracers_timemelt=.false.
+  basalt_harzburgite=.true.
+  primordial_layer=.false.
+  traceelement_hpe=.true.
+  Dpartition_hpe=0.0001
+  Dpartition_FeO=1.0
+  oxides_compositions=.false.
+  /
+
+
+  &plot     ! <------------ Set some of these .true. to generate .png images
+  npix=400000
+  plot_file_stem='+im/earthDIM'
+  dots=.false.
+  auto_t_scale=.false.
+  t_superadiabatic=.false.
+  t_plot=.false.
+  oxides_plot=.false.
+  p_plot=.false.
+  pd_plot=.false.
+  c_plot=.false.
+  bs_plot=.false.
+  hz_plot=.false.
+  primordial_plot=.false.
+  f_plot=.false.
+  v_plot=.false.
+  eta_plot=.false.
+  vd_plot=.false.
+  stress_plot=.false.
+  tcond_plot=.false.
+  ph_plot=.false.
+  hpe_plot=.false.
+  rheo_plot=.false.
+  /
+
+
+  &postprocessing
+  /
+
+  &grainsize
+  /
+
+  &atm_stuff
+  /
+
