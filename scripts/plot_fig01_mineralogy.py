@@ -196,16 +196,18 @@ def build_figure(df: pd.DataFrame) -> mpl.figure.Figure:
     ax_map.pcolormesh(
         f_vals, T_vals, Z, cmap=cmap, norm=norm, shading="nearest", rasterized=True
     )
-    # Crisp black boundaries between rock-type fields.
+    # Crisp black boundaries between rock-type fields. Each boundary lies midway
+    # between grid nodes, also where a field jumps over a class (harzburgite to norite).
     Tg, Fg = np.meshgrid(T_vals, f_vals, indexing="ij")
-    ax_map.contour(
-        Fg,
-        Tg,
-        Z,
-        levels=np.arange(0.5, len(ROCK_TYPES) - 0.5 + 0.1),
-        colors=fwl_mpl.SURFACES["light"]["ink"],
-        linewidths=0.7,
-    )
+    for k in range(len(ROCK_TYPES) - 1):
+        ax_map.contour(
+            Fg,
+            Tg,
+            (Z <= k).astype(float),
+            levels=[0.5],
+            colors=fwl_mpl.SURFACES["light"]["ink"],
+            linewidths=0.7,
+        )
     ax_map.set_xlim(0, 1)
     ax_map.set_ylim(T_lo, T_hi)
     ax_map.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
