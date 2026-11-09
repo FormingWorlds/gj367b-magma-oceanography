@@ -14,7 +14,8 @@ from stagyy_common import DATA_DIR, GROUPS, MODEL_NAMES, SEC_PER_GYR
 # Planet and run settings (Lam et al. 2021 structure, par files in runs/).
 R_PLANET = 4574.0e3
 R_CMB = 3934.0e3
-RHO_MANTLE = 4000.0
+# Reference mantle density of the runs (par_GJ367b dens_dimensional).
+RHO_MANTLE = 3300.0
 CP_MANTLE = 1200.0
 H_RADIOGENIC = 5.2e-12
 T_NIGHT = 100.0
