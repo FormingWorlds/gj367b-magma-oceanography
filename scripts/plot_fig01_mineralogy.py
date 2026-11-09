@@ -1,7 +1,7 @@
 """Build Figure 1 of the GJ 367 b paper: rock type and mineralogy.
 
-The figure has a cross layout. The central panel shows the IUGS rock-type
-classification as a function of bulk basalt fraction (0 = harzburgite,
+The figure has a cross layout. The central panel shows the rock-type
+classes as a function of bulk basalt fraction (0 = harzburgite,
 1 = basalt) and temperature. The four arms show the volume fractions of the
 individual mineral phases along the edges of that map:
 
