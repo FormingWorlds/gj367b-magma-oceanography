@@ -73,10 +73,8 @@ def load_grid(csv_path: Path) -> pd.DataFrame:
     df = pd.read_csv(csv_path)
     df["f_bas"] = df["f_bas"].astype(float)
     df["T"] = df["T"].astype(float)
-    for m in list(MINERALS):
-        if m in df.columns and float(df[m].abs().max()) == 0.0:
-            MINERALS.remove(m)
-    return df
+    empty = [m for m in MINERALS if m in df.columns and float(df[m].abs().max()) == 0.0]
+    return df.drop(columns=empty)
 
 
 def _present_minerals(df: pd.DataFrame) -> list[str]:
@@ -166,7 +164,12 @@ def build_figure(df: pd.DataFrame) -> mpl.figure.Figure:
     # Rock-type map: pivot rock type into a 2D (T, f_bas) integer grid.
     rock_to_int = {r: i for i, r in enumerate(ROCK_TYPES)}
     pivot = df.pivot(index="T", columns="f_bas", values="Rock type")
-    Z = np.vectorize(lambda r: rock_to_int.get(r, np.nan))(pivot.to_numpy())
+    if pivot.isna().to_numpy().any():
+        raise ValueError("the grid misses (T, f_bas) points")
+    unknown = set(pivot.to_numpy().ravel()) - set(ROCK_TYPES)
+    if unknown:
+        raise ValueError(f"unknown rock types: {sorted(unknown)}")
+    Z = np.vectorize(rock_to_int.get)(pivot.to_numpy())
     cmap = ListedColormap(ROCK_COLORS)
     norm = BoundaryNorm(np.arange(-0.5, len(ROCK_TYPES) + 0.5), cmap.N)
 
@@ -312,7 +315,9 @@ def main() -> None:
     problems = fwl_mpl.finish(fig)
     for line in problems:
         print(f"layout: {line}")
+    args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out)
+    plt.close(fig)
     print(f"wrote {args.out}")
 
 

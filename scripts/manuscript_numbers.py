@@ -41,6 +41,8 @@ def surface_temperature(theta_deg, t_day):
 
 def shoreline_deg(t_day, t_melt=T_MELT_ENRICHED):
     """Return the angle where the fixed surface temperature equals ``t_melt``."""
+    if not T_NIGHT <= t_melt <= t_day:
+        raise ValueError("t_melt must lie between T_NIGHT and t_day")
     return math.degrees(math.acos(((t_melt - T_NIGHT) / (t_day - T_NIGHT)) ** 4))
 
 

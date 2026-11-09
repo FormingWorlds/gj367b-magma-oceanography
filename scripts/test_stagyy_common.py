@@ -51,6 +51,11 @@ def test_half_cell_flux_solves_the_radiative_balance_at_night():
         3.0 * (200.0 - out["t_surface"][night]) / 10.0e3
     )
     assert out["half_cell"][~night][0] != pytest.approx(out["half_cell"][night][0])
+    lon = np.radians(out["lon_deg"][~night])
+    t_rad4 = 1597.0**4 * np.cos(lon) + 100.0**4
+    assert out["half_cell"][~night] == pytest.approx(
+        sc.SIGMA_SB * (out["t_surface"][~night] ** 4 - t_rad4)
+    )
 
 
 @pytest.mark.parametrize(
@@ -111,3 +116,36 @@ def test_surface_temperature_follows_the_irradiation_law_for_small_conductivity(
         1597.0**4 * np.clip(np.cos(np.radians(out["lon_deg"])), 0.0, None) + 100.0**4
     ) ** 0.25
     assert out["t_surface"] == pytest.approx(expected, rel=1.0e-6)
+
+
+def test_time_cells_keep_the_spacing_after_consecutive_gaps():
+    """Cells next to gaps keep the regular width of 1, also for gaps in a row."""
+    isnap = np.array([0, 1, 10, 20, 30, 31, 32])
+    cells, gaps = sc.time_cells(isnap.astype(float), isnap, 1)
+    assert list(gaps) == [1, 2, 3]
+    assert cells[0] == pytest.approx([0.0, 0.5])
+    assert cells[1:, 1] - cells[1:, 0] == pytest.approx(np.ones(6))
+
+
+def test_time_cells_close_the_last_cell_after_a_final_gap():
+    isnap = np.array([0, 1, 2, 10])
+    cells, _ = sc.time_cells(isnap.astype(float), isnap, 1)
+    assert cells[-1] == pytest.approx([9.5, 10.5])
+
+
+def test_time_cells_take_the_spacing_after_a_first_gap():
+    isnap = np.array([0, 10, 11, 12])
+    cells, _ = sc.time_cells(isnap.astype(float), isnap, 1)
+    assert cells[0] == pytest.approx([0.0, 0.5])
+    assert cells[1] == pytest.approx([9.5, 10.5])
+
+
+def test_time_cells_refuse_a_series_of_gaps_only():
+    isnap = np.array([0, 10, 20])
+    with pytest.raises(ValueError, match="every interval is a gap"):
+        sc.time_cells(isnap.astype(float), isnap, 1)
+
+
+def test_sample_indices_refuse_an_empty_run():
+    with pytest.raises(ValueError, match="at least 1 item"):
+        sc.sample_indices(0, 10)

@@ -23,9 +23,14 @@ def test_grid_rows_are_pressures_and_columns_are_f():
     table["001bar_H2O"] = -0.5
     table["100bar_H2O_full"] = -20.0
     out = grid(table, "H2O")
+    table[f"{PRESSURES[0]}bar_H2O{MODES[4][0]}"] = -3.0
+    table[f"{PRESSURES[4]}bar_H2O{MODES[0][0]}"] = -7.0
+    out = grid(table, "H2O")
     assert out.shape == (5, 5)
     assert out[0, 0] == -0.5
     assert out[4, 4] == -20.0
+    assert out[0, 4] == -3.0
+    assert out[4, 0] == -7.0
 
 
 def test_grid_missing_model_raises():
@@ -50,3 +55,11 @@ def test_stored_table_is_complete():
     table = read_table(DATA)
     for gas in ("CH4", "CO2", "H2O", "SO2", "N2_1000ppm_CO2"):
         assert np.isfinite(grid(table, gas)).all()
+
+
+def test_cell_text_signs_and_floor():
+    """No negative zero, a real minus sign, and the floor label."""
+    assert cell_text(-0.04) == "0.0"
+    assert cell_text(-1.26) == "−1.3"
+    assert cell_text(2.0) == "2.0"
+    assert cell_text(-50.0) == "<−10"

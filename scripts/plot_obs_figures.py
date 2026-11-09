@@ -433,6 +433,7 @@ def save(fig, out):
     """Apply the layout rules, print what remains wrong, and save ``fig`` to ``out``."""
     for line in fwl_mpl.finish(fig):
         print(f"layout {out.name}:", line)
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out)
     plt.close(fig)
     print("wrote", out)

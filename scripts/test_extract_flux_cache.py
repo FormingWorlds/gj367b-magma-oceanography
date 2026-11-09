@@ -41,3 +41,10 @@ def test_refuses_missing_column(tmp_path):
     columns = tuple([1.0] for _ in NAMES[1:])
     with pytest.raises(ValueError):
         read_cache(write(tmp_path / "flux_data.p", columns))
+
+
+@pytest.mark.parametrize("bad", [[], 3.0])
+def test_refuses_empty_or_scalar_columns(tmp_path, bad):
+    columns = tuple([1.0, 2.0] for _ in NAMES[:-1]) + (bad,)
+    with pytest.raises(ValueError, match="1-D and non-empty"):
+        read_cache(write(tmp_path / "flux_data.p", columns))

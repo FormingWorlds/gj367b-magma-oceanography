@@ -204,6 +204,9 @@ def surface_forcing(sdat):
 def sample_indices(n_items, max_rows):
     """Return evenly spaced indices that always include the last item.
 
+    The result holds at most ``max_rows + 1`` indices: ``max_rows`` evenly spaced
+    ones and the last item.
+
     Parameters
     ----------
     n_items : int
@@ -215,7 +218,14 @@ def sample_indices(n_items, max_rows):
     -------
     list of int
         Increasing indices.
+
+    Raises
+    ------
+    ValueError
+        If ``n_items`` is below 1.
     """
+    if n_items < 1:
+        raise ValueError("need at least 1 item")
     stride = max(1, int(np.ceil(n_items / max_rows)))
     indices = list(range(0, n_items, stride))
     if indices[-1] != n_items - 1:
@@ -241,6 +251,12 @@ def time_cells(time, isnap, stride):
         Pairs ``(low, high)`` per row, with shape ``(time.size, 2)``.
     gaps : numpy.ndarray
         Indices ``i`` where snapshots are missing between rows ``i`` and ``i + 1``.
+
+    Raises
+    ------
+    ValueError
+        If there are fewer than 2 rows, the times do not increase, or every
+        interval is a gap.
     """
     if time.size < 2:
         raise ValueError("need at least 2 rows")
@@ -248,14 +264,26 @@ def time_cells(time, isnap, stride):
         raise ValueError("row times must increase")
     steps = np.diff(isnap)
     gaps = np.flatnonzero(steps > stride + 1)
-    half = 0.5 * np.diff(time)
+    dt = np.diff(time)
+    regular = np.ones(dt.size, dtype=bool)
+    regular[gaps] = False
+    if not regular.any():
+        raise ValueError("every interval is a gap")
+    half = 0.5 * dt
     low = np.concatenate(([0.0], time[1:] - half))
     high = np.concatenate((time[:-1] + half, [time[-1] + half[-1]]))
     for i in gaps:
-        step = np.median(np.diff(time[max(i - 5, 0) : i + 1])) if i > 0 else half[0]
+        # Typical spacing from up to 5 regular intervals before the gap, else after it.
+        before = dt[max(i - 5, 0) : i][regular[max(i - 5, 0) : i]]
+        after = dt[i + 1 : i + 6][regular[i + 1 : i + 6]]
+        step = np.median(
+            before if before.size else after if after.size else dt[regular]
+        )
         middle = 0.5 * (time[i] + time[i + 1])
         high[i] = min(time[i] + 0.5 * step, middle)
         low[i + 1] = max(time[i + 1] - 0.5 * step, middle)
+        if i + 1 == time.size - 1:
+            high[-1] = time[-1] + 0.5 * step
     return np.column_stack((low, high)), gaps
 
 
@@ -264,10 +292,10 @@ def conductive_flux(step, t_substellar, t_night):
 
     The runs hold no ``hf`` files, so this is a reconstruction. ``near_surface`` is
     the flux between the 2 top cell centres and needs no boundary condition.
-    ``half_cell`` also solves the radiative balance of the Methods across the top
-    half cell. It depends on the assumed law
-    ``T_rad^4 = t_substellar^4 * max(cos(lon), 0) + t_night^4``, which is not checked
-    against the StagYY source.
+    ``half_cell`` solves a radiative balance across the top half cell with the law
+    ``T_rad^4 = t_substellar^4 * max(cos(lon), 0) + t_night^4``. The runs fix the
+    surface temperature instead (Methods), so ``half_cell`` is a diagnostic that no
+    figure or number of the manuscript uses.
 
     Parameters
     ----------

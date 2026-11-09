@@ -104,6 +104,8 @@ def main(run, max_flux_rows):
                 np.mean(half[~mask]),
             )
         )
+    if not rows:
+        raise ValueError(f"run {run}: every sampled snapshot was skipped")
     table = np.asarray(rows, dtype=np.float32)
     for k, name in enumerate(columns):
         out[f"flux_{name}"] = table[:, k]

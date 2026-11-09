@@ -40,6 +40,8 @@ def test_consistent_range_excludes_rejected_surfaces():
     ev = obs.surface_evidence()
     lo, hi = obs.consistent_range(phot, ev)
     assert 0.9 < lo < hi < 1.01
+    assert lo == pytest.approx(0.919364, abs=1e-6)
+    assert hi == pytest.approx(1.00542, abs=1e-6)
     assert phot["magnesium_sulphate"]["F1280W"] < lo - 0.1
 
 

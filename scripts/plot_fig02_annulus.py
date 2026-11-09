@@ -249,7 +249,9 @@ def main(mode, out):
         cax.xaxis.set_label_position("bottom")
     for line in fwl_mpl.finish(fig, dpi=400):
         print("layout:", line)
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=400)
+    plt.close(fig)
     print("wrote", out)
 
 

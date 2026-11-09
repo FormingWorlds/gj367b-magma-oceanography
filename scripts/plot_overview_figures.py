@@ -125,8 +125,16 @@ def despike(values, factor=2.0):
     Returns
     -------
     numpy.ndarray
-        Copy of ``values`` with the spikes replaced.
+        Copy of ``values`` with the spikes replaced. The first and last outputs
+        are never replaced.
+
+    Raises
+    ------
+    ValueError
+        If any value is zero or negative, where the ratio test fails.
     """
+    if np.any(values <= 0.0):
+        raise ValueError("despike needs positive values")
     med = median_filter(values, size=3, mode="nearest")
     spike = (values > factor * med) | (values < med / factor)
     return np.where(spike, med, values)
@@ -224,7 +232,15 @@ def fill_gaps(y, rows, values, n_sub=20):
     tuple of numpy.ndarray
         New time edges and rows, with each missing interval split into
         ``n_sub`` rows that blend linearly from the row before to the row after.
+
+    Raises
+    ------
+    ValueError
+        If the first or last row is missing, or 2 missing rows are adjacent.
     """
+    missing = np.asarray(rows) < 0
+    if missing[0] or missing[-1] or np.any(missing[1:] & missing[:-1]):
+        raise ValueError("a missing interval needs a stored row on both sides")
     edges, out = [y[0]], []
     for k, row in enumerate(rows):
         if row >= 0:
@@ -515,6 +531,7 @@ def save(fig, out, dpi=None):
     """
     for line in fwl_mpl.finish(fig, dpi=dpi):
         print(f"layout {out.name}:", line)
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=dpi)
     plt.close(fig)
     print("wrote", out)

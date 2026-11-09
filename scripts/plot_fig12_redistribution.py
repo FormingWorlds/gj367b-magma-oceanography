@@ -87,7 +87,10 @@ def grid(table, gas):
 
 def cell_text(value):
     """Return the cell label: 1 decimal, or ``<-10`` below the colour floor."""
-    return "<−10" if value < FLOOR else f"{value:.1f}".replace("-", "−")
+    if value < FLOOR:
+        return "<−10"
+    text = f"{value:.1f}"
+    return "0.0" if text == "-0.0" else text.replace("-", "−")
 
 
 def main(out):
@@ -140,7 +143,9 @@ def main(out):
         plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axes, shrink=0.9, pad=0.01
     )
     bar.set_label(r"$\Delta \ln Z$ vs pyrite")
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out)
+    plt.close(fig)
     print(f"wrote {out}")
 
 

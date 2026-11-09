@@ -41,7 +41,7 @@ def read_cache(path):
     Raises
     ------
     ValueError
-        If the columns differ in length.
+        If a column is not 1-D, is empty, or the columns differ in length.
     """
 
     class NumbersOnly(pickle.Unpickler):
@@ -58,6 +58,8 @@ def read_cache(path):
         name: np.asarray(col, dtype=float)
         for name, col in zip(NAMES, columns, strict=True)
     }
+    if any(col.ndim != 1 or col.size == 0 for col in out.values()):
+        raise ValueError(f"{path}: every column must be 1-D and non-empty")
     if len({col.size for col in out.values()}) != 1:
         raise ValueError(f"{path}: columns differ in length")
     return out

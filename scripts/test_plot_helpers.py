@@ -1,6 +1,7 @@
 """Tests for the helpers of the overview figures."""
 
 import numpy as np
+import pytest
 
 
 def test_model_names_cover_every_plotted_run():
@@ -63,3 +64,54 @@ def test_map_ticks_keep_narrow_labels_apart():
     assert top == 1.13 and ticks == [0.0, 0.5, 1.13]
     top, ticks = map_ticks(2.2611)
     assert top == 2.26 and ticks == [0.0, 1.0, 2.26]
+
+
+@pytest.mark.parametrize(
+    "rows", [np.array([-1, 0, 1]), np.array([0, 1, -1]), np.array([0, -1, -1, 1])]
+)
+def test_fill_gaps_needs_a_stored_row_on_both_sides(rows):
+    from plot_overview_figures import fill_gaps
+
+    values = np.array([[0.0], [1.0]])
+    y = np.arange(rows.size + 1, dtype=float)
+    with pytest.raises(ValueError, match="stored row on both sides"):
+        fill_gaps(y, rows, values)
+
+
+def test_despike_replaces_one_spike_and_keeps_the_ends():
+    """A 10x output is replaced; the first and last outputs stay."""
+    from plot_overview_figures import despike
+
+    values = np.array([300.0, 30.0, 32.0, 300.0, 31.0, 33.0, 300.0])
+    out = despike(values)
+    np.testing.assert_allclose(out, [300.0, 30.0, 32.0, 32.0, 31.0, 33.0, 300.0])
+
+
+def test_despike_refuses_values_at_or_below_zero():
+    from plot_overview_figures import despike
+
+    with pytest.raises(ValueError, match="positive values"):
+        despike(np.array([30.0, -50.0, 31.0]))
+
+
+def test_load_grid_drops_empty_minerals_without_changing_the_module_list(tmp_path):
+    import plot_fig01_mineralogy as fig01
+
+    before = list(fig01.MINERALS)
+    path = tmp_path / "grid.csv"
+    path.write_text(
+        "f_bas,T,Olivine,Kyanite,Rock type\n0.0,300,60.0,0.0,Harzburgite\n"
+        "0.1,300,50.0,0.0,Harzburgite\n"
+    )
+    df = fig01.load_grid(path)
+    assert "Kyanite" not in df.columns and "Olivine" in df.columns
+    assert fig01.MINERALS == before
+
+
+def test_shoreline_angle_and_domain():
+    """1274 K at T_day 1597 K lies at 67.8 deg; a melting T above T_day raises."""
+    import manuscript_numbers as mn
+
+    assert mn.shoreline_deg(1597.0) == pytest.approx(67.8, abs=0.05)
+    with pytest.raises(ValueError, match="between T_NIGHT and t_day"):
+        mn.shoreline_deg(1597.0, t_melt=1700.0)

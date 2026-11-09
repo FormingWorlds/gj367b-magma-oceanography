@@ -168,7 +168,9 @@ def surface_photometry(nc_path, wave, tp, t_planet, star, rp_m, d_m):
         return None
     data = miri.load_agni_output(nc_path)
     dilution = (rp_m / d_m) ** 2
-    flux = np.interp(wave, data["bandcenter"] / 1000, data["ba_U_total"] * 1000) * dilution
+    flux = (
+        np.interp(wave, data["bandcenter"] / 1000, data["ba_U_total"] * 1000) * dilution
+    )
     bb = planck(wave * 1000, t_planet) * 1000 * dilution
     row = {}
     for filt, thr in tp.items():
