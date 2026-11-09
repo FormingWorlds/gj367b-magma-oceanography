@@ -116,3 +116,47 @@ def test_calibrated_sigma_of_surfaces_is_about_0p08():
         for band in ("F1280W", "F1500W")
     ]
     assert 0.06 < min(sig) and max(sig) < 0.10
+
+
+def test_reduced_chi2_matches_hand_value(tmp_path):
+    """Two points, model linear in wavelength: chi2 / (N - 1) by hand."""
+    path = tmp_path / "spec.npz"
+    np.savez(
+        path,
+        wavelength_um=np.array([5.0, 7.0, 9.0]),
+        names=np.array(["a", "b"]),
+        contrast_ppm=np.array([[100.0, 200.0, 300.0], [0.0, 0.0, 0.0]]),
+        obs_um=np.array([6.0, 8.0]),
+        obs_ppm=np.array([160, 250]),
+        obs_ppm_err=np.array([10, 25]),
+    )
+    chi2 = obs.reduced_chi2(path)
+    # a: model 150 and 250 -> (1^2 + 0^2) / 1; b: (16^2 + 10^2) / 1
+    assert chi2["a"] == pytest.approx(1.0)
+    assert chi2["b"] == pytest.approx(356.0)
+
+
+def test_reduced_chi2_refuses_extrapolation(tmp_path):
+    """An observed point outside the model bands raises."""
+    path = tmp_path / "spec.npz"
+    np.savez(
+        path,
+        wavelength_um=np.array([5.0, 7.0]),
+        names=np.array(["a"]),
+        contrast_ppm=np.array([[1.0, 2.0]]),
+        obs_um=np.array([8.0]),
+        obs_ppm=np.array([1]),
+        obs_ppm_err=np.array([1]),
+    )
+    with pytest.raises(ValueError, match="outside the model bands"):
+        obs.reduced_chi2(path)
+
+
+def test_reduced_chi2_of_the_stored_spectra():
+    """Pyrite has the lowest value; the values the text quotes."""
+    chi2 = obs.reduced_chi2()
+    assert min(chi2, key=chi2.get) == "pyrite"
+    assert chi2["pyrite"] == pytest.approx(1.74, abs=0.005)
+    assert chi2["norite"] == pytest.approx(1.86, abs=0.005)
+    assert chi2["gabbro"] == pytest.approx(1.87, abs=0.005)
+    assert chi2["basalt_glass"] == pytest.approx(1.86, abs=0.005)

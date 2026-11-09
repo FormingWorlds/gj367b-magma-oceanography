@@ -150,7 +150,16 @@ def fluxes():
         )
 
 
+def chi_squared():
+    """Print the reduced chi-squared of the surfaces named in the text."""
+    chi2 = obs.reduced_chi2()
+    best = min(chi2, key=chi2.get)
+    print(f"lowest reduced chi2: {best} {chi2[best]:.2f}")
+    for name in ("pyrite", "norite", "gabbro", "basalt_glass"):
+        print(f"  {name}: {chi2[name]:.2f}")
+
+
 if __name__ == "__main__":
-    for part in (photometry, temperatures, shorelines, fluxes):
+    for part in (photometry, chi_squared, temperatures, shorelines, fluxes):
         print(f"== {part.__name__}")
         part()

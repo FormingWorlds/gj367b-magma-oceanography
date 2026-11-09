@@ -119,6 +119,35 @@ def consistent_range(phot, evidence):
     return min(vals), max(vals)
 
 
+def reduced_chi2(path=DATA / "vayu_surface_spectra.npz"):
+    """Return the reduced chi-squared of each surface spectrum against the MIRI points.
+
+    The model is interpolated linearly to the observed wavelengths, which lie
+    inside the model band range, and chi-squared is divided by N - 1 as in VAYU.
+
+    Parameters
+    ----------
+    path : Path
+        Output of ``extract_vayu_obs.py``.
+
+    Returns
+    -------
+    dict
+        Reduced chi-squared by surface name.
+    """
+    spec = np.load(path)
+    wave, obs_um = spec["wavelength_um"], spec["obs_um"]
+    if obs_um.min() < wave.min() or obs_um.max() > wave.max():
+        raise ValueError("observed wavelengths outside the model bands")
+    y, err = spec["obs_ppm"].astype(float), spec["obs_ppm_err"].astype(float)
+    return {
+        str(name): float(
+            np.sum(((y - np.interp(obs_um, wave, c)) / err) ** 2) / (y.size - 1)
+        )
+        for name, c in zip(spec["names"], spec["contrast_ppm"], strict=True)
+    }
+
+
 def surfaces_figure(out):
     """Draw the surface spectra (a) and the ranked surface evidence (b)."""
     spec = np.load(DATA / "vayu_surface_spectra.npz")

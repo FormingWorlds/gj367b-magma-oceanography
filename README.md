@@ -25,7 +25,7 @@ cd scripts
 ../.venv/bin/python plot_obs_figures.py
 ```
 
-The plot scripts read only `data/` and write to `figures/`. `manuscript_numbers.py` prints the derived numbers quoted in the text (photometric separations, effective albedos, shoreline positions, energy budget, and the outputs left out of Fig. 5).
+The plot scripts read only `data/` and write to `figures/`. `manuscript_numbers.py` prints the derived numbers quoted in the text (photometric separations, reduced chi-squared of the surface spectra, effective albedos, shoreline positions, energy budget, and the outputs left out of Fig. 5).
 
 ## Figures
 
